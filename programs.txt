@@ -1,0 +1,401 @@
+stemming , lemmatization, and stopword removal using NLTK
+
+import nltk
+import pandas as pd
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('stopwords')
+
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
+df = pd.read_csv("data.csv")
+
+ps = PorterStemmer()
+lm = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
+
+for text in df['text'].dropna():
+    words = word_tokenize(str(text).lower())
+
+    print("\nText:", text)
+    print("Tokens:", words)
+
+    # Stopword Removal
+    filtered = [w for w in words if w not in stop_words]
+    print("After Stopword Removal:", filtered)
+
+    # Stemming
+    print("Stemming:", [ps.stem(w) for w in filtered])
+
+    # Lemmatization
+    print("Lemmatization:",
+          [lm.lemmatize(w, pos='v') for w in filtered])
+
+
+
+POS TAG
+
+import nltk
+import pandas as pd
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('averaged_perceptron_tagger_eng')
+
+from nltk.tokenize import word_tokenize
+from nltk import pos_tag
+
+df = pd.read_csv("data.csv")
+
+for text in df['text'].dropna():
+    words = word_tokenize(str(text))
+
+    print("\nText:", text)
+    print("POS Tags:", pos_tag(words))
+
+
+pip install pandas nltk gensim -- for cbow,word2vec skipgram
+
+
+CBOW
+
+
+import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
+from gensim.models import Word2Vec
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+df = pd.read_csv("data.csv")
+
+sentences = [
+    word_tokenize(str(text).lower())
+    for text in df['text'].dropna()
+]
+
+model = Word2Vec(
+    sentences,
+    vector_size=50,
+    window=2,
+    min_count=1,
+    sg=0,
+    workers=1
+)
+
+word = input("Enter a word: ").lower()
+
+if word in model.wv:
+    print("CBOW Vector:")
+    print(model.wv[word])
+else:
+    print("Word not found")
+
+
+SKIPGRAM
+
+import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
+from gensim.models import Word2Vec
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+df = pd.read_csv("data.csv")
+
+sentences = [
+    word_tokenize(str(text).lower())
+    for text in df['text'].dropna()
+]
+
+model = Word2Vec(
+    sentences,
+    vector_size=50,
+    window=2,
+    min_count=1,
+    sg=1,
+    workers=1
+)
+
+word = input("Enter a word: ").lower()
+
+if word in model.wv:
+    print("Skip-gram Vector:")
+    print(model.wv[word])
+else:
+    print("Word not found")
+
+
+
+Word2Vec
+
+import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
+from gensim.models import Word2Vec
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+df = pd.read_csv("data.csv")
+
+sentences = [
+    word_tokenize(str(text).lower())
+    for text in df['text'].dropna()
+]
+
+model = Word2Vec(
+    sentences,
+    vector_size=50,
+    window=2,
+    min_count=1,
+    workers=1
+)
+
+word = input("Enter a word: ").lower()
+
+if word in model.wv:
+    print("Word Vector:")
+    print(model.wv[word])
+
+    print("Similar Words:")
+    print(model.wv.most_similar(word, topn=3))
+else:
+    print("Word not found")
+
+
+Text to speech
+
+from gtts import gTTS
+import os
+
+text = input("Enter text: ")
+
+tts = gTTS(text=text, lang='en')
+
+tts.save("output.mp3")
+
+print("Speech saved successfully!")
+
+os.system("start output.mp3")
+
+//pip  install gtts 
+
+IF NO NET 
+import pyttsx3
+
+engine = pyttsx3.init()
+
+text = input("Enter text: ")
+
+engine.say(text)
+engine.runAndWait()
+
+
+
+rule based chatbot
+
+def chatbot(user):
+    user = user.lower()
+
+    if "hello" in user or "hi" in user:
+        return "Hello! How are you?"
+
+    elif "name" in user:
+        return "I am a Rule-Based Chatbot."
+
+    elif "how are you" in user:
+        return "I am fine. Thank you!"
+
+    elif "course" in user:
+        return "I can help you with course details."
+
+    elif "bye" in user:
+        return "Goodbye!"
+
+    else:
+        return "Sorry, I don't understand."
+
+
+while True:
+    user = input("You: ")
+    response = chatbot(user)
+    print("Bot:", response)
+
+    if "bye" in user.lower():
+        break
+
+
+SPAM CLASSIFIER
+
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Read dataset
+df = pd.read_csv("spam.csv")
+
+X = df['message']
+y = df['label']
+
+# Convert text into TF-IDF features
+tfidf = TfidfVectorizer()
+X = tfidf.fit_transform(X)
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Train Naive Bayes model
+model = MultinomialNB()
+model.fit(X_train, y_train)
+
+# Predict and evaluate
+y_pred = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+# Test a new message
+msg = input("Enter a message: ")
+msg = tfidf.transform([msg])
+print("Prediction:", model.predict(msg)[0])
+
+
+
+SENTIMENTAL ANALYSIS
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
+texts = [
+    "I love this product",
+    "This is a wonderful movie",
+    "I am very happy",
+    "I hate this product",
+    "This movie is terrible",
+    "I am very sad"
+]
+
+labels = [
+    "Positive", "Positive", "Positive",
+    "Negative", "Negative", "Negative"
+]
+
+# Convert text into TF-IDF features
+tfidf = TfidfVectorizer()
+X = tfidf.fit_transform(texts)
+
+# Train model
+model = MultinomialNB()
+model.fit(X, labels)
+
+# Test sentiment
+while True:
+    text = input("Enter a sentence (bye to stop): ")
+
+    if text.lower() == "bye":
+        break
+
+    X_test = tfidf.transform([text])
+    print("Sentiment:", model.predict(X_test)[0])
+
+BERT 
+
+#pip install transformers torch
+
+from transformers import pipeline
+
+classifier = pipeline("sentiment-analysis")
+
+text = input("Enter a sentence: ")
+
+result = classifier(text)
+
+print("Sentiment:", result[0]["label"])
+print("Confidence:", round(result[0]["score"], 4))
+
+
+
+GLOVE
+
+import gensim.downloader as api
+
+print("Loading GloVe...")
+model = api.load("glove-wiki-gigaword-50")
+
+word = input("Enter word: ").lower()
+
+if word in model:
+    print("Vector:", model[word])
+    print("Similar:", model.most_similar(word, topn=3))
+else:
+    print("Word not found")
+
+
+
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+
+responses:
+  utter_greet:
+    - text: "Hello! How can I help you?"
+
+  utter_goodbye:
+    - text: "Goodbye!"
+
+Domain.yml
+
+
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hello
+    - hi
+    - hey
+    - good morning
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you
+
+Data/nlu.yml
+
+version: "3.1"
+
+stories:
+- story: greeting
+  steps:
+  - intent: greet
+  - action: utter_greet
+
+- story: goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+Data/stories.yml
+
+winget install -e --id Python.Python.3.10
+
+pip install rasa 
+
+rasa init 
+ellame enter ,give yes 
+
+
