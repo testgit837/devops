@@ -399,3 +399,6 @@ rasa init
 ellame enter ,give yes 
 
 
+python --version
+python -m pip install pandas nltk scikit-learn gensim gTTS pyttsx3
+
